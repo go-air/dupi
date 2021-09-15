@@ -1,4 +1,4 @@
-module github.com/scott-cotton/dupi
+module github.com/go-air/dupi
 
 go 1.17
 
