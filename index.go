@@ -19,9 +19,11 @@ import (
 	"log"
 	"os"
 
+	"github.com/go-air/dupi/blotter"
 	"github.com/go-air/dupi/dmd"
 	"github.com/go-air/dupi/internal/shard"
 	"github.com/go-air/dupi/lock"
+	"github.com/go-air/dupi/token"
 )
 
 type Index struct {
@@ -47,6 +49,7 @@ func OpenIndex(root string) (*Index, error) {
 	if err != nil {
 		return nil, err
 	}
+	res.config = cfg
 	res.dmd, err = dmd.New(cfg.IndexRoot)
 	if err != nil {
 		return nil, err
@@ -60,7 +63,7 @@ func OpenIndex(root string) (*Index, error) {
 	if err != nil {
 		return nil, err
 	}
-	res.shards = make([]shard.Index, cfg.NumBuckets)
+	res.shards = make([]shard.Index, cfg.NumShards)
 	for i := range res.shards {
 		shard := &res.shards[i]
 		if err := shard.Init(cfg.PostPath(i)); err != nil {
@@ -90,6 +93,34 @@ func (x *Index) Close() error {
 
 func (x *Index) Root() string {
 	return x.config.IndexRoot
+}
+
+func (x *Index) TokenFunc() token.TokenizerFunc {
+	tf, err := token.FromConfig(&x.config.TokenConfig)
+	if err != nil {
+		panic(err) // should be impossible.
+	}
+	return tf
+}
+
+func (x *Index) Blotter() blotter.T {
+	sh, err := blotter.FromConfig(&x.config.BlotConfig)
+	if err != nil {
+		panic(err)
+	}
+	return sh
+}
+
+func (x *Index) NumShatters() int {
+	return x.config.NumShatters
+}
+
+func (x *Index) NumShards() int {
+	return x.config.NumShards
+}
+
+func (x *Index) SeqLen() int {
+	return x.config.SeqLen
 }
 
 func (x *Index) StartQuery(s QueryStrategy) *Query {
