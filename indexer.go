@@ -18,11 +18,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/scott-cotton/dupi/dmd"
-	"github.com/scott-cotton/dupi/internal/shard"
-	"github.com/scott-cotton/dupi/lock"
-	"github.com/scott-cotton/dupi/post"
-	"github.com/scott-cotton/dupi/token"
+	"github.com/go-air/dupi/dmd"
+	"github.com/go-air/dupi/internal/shard"
+	"github.com/go-air/dupi/lock"
+	"github.com/go-air/dupi/post"
+	"github.com/go-air/dupi/token"
 )
 
 // Indexer is a struct for duplicate indexing.

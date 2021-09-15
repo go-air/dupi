@@ -25,8 +25,8 @@ import (
 
 	_ "net/http/pprof"
 
+	"github.com/go-air/dupi"
 	"github.com/google/gops/agent"
-	"github.com/scott-cotton/dupi"
 )
 
 var N = flag.Int("n", 16, "buckets")

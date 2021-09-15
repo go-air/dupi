@@ -20,7 +20,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/scott-cotton/dupi/post"
+	"github.com/go-air/dupi/post"
 )
 
 type Indexer struct {

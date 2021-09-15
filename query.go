@@ -19,7 +19,7 @@ import (
 	"io"
 	"math"
 
-	"github.com/scott-cotton/dupi/internal/shard"
+	"github.com/go-air/dupi/internal/shard"
 )
 
 type qstate struct {

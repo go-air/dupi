@@ -21,7 +21,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/scott-cotton/dupi"
+	"github.com/go-air/dupi"
 )
 
 type extractCmd struct {

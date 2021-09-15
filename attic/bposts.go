@@ -15,7 +15,7 @@
 package attic
 
 import (
-	"github.com/scott-cotton/dupi/attic/ibloom"
+	"github.com/go-air/dupi/attic/ibloom"
 )
 
 type bposts struct {

@@ -18,7 +18,7 @@ package trigram
 import (
 	"fmt"
 
-	"github.com/scott-cotton/dupi/token"
+	"github.com/go-air/dupi/token"
 )
 
 type T uint16

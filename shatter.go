@@ -17,9 +17,9 @@ package dupi
 import (
 	"sync"
 
-	"github.com/scott-cotton/dupi/blotter"
-	"github.com/scott-cotton/dupi/post"
-	"github.com/scott-cotton/dupi/token"
+	"github.com/go-air/dupi/blotter"
+	"github.com/go-air/dupi/post"
+	"github.com/go-air/dupi/token"
 )
 
 type shardMsg struct {

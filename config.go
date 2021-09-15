@@ -21,8 +21,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/scott-cotton/dupi/blotter"
-	"github.com/scott-cotton/dupi/token"
+	"github.com/go-air/dupi/blotter"
+	"github.com/go-air/dupi/token"
 )
 
 type Config struct {

@@ -20,8 +20,8 @@ import (
 	"testing"
 	"unsafe"
 
-	"github.com/scott-cotton/dupi/attic/ibloom"
-	"github.com/scott-cotton/dupi/attic/trigram"
+	"github.com/go-air/dupi/attic/ibloom"
+	"github.com/go-air/dupi/attic/trigram"
 )
 
 func TestTridat(t *testing.T) {

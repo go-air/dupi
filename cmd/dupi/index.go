@@ -23,7 +23,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/scott-cotton/dupi"
+	"github.com/go-air/dupi"
 )
 
 type indexCmd struct {
