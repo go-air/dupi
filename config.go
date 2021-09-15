@@ -28,7 +28,7 @@ import (
 type Config struct {
 	IndexRoot   string
 	SeqLen      int
-	NumBuckets  int
+	NumShards  int
 	NumShatters int
 
 	// How frequently buckets write document
@@ -49,7 +49,7 @@ func DefaultConfig(root string) (*Config, error) {
 	}
 	cfg.IndexRoot = abs
 	cfg.DocFlushRate = 16384
-	cfg.NumBuckets = 2
+	cfg.NumShards = 2
 	cfg.NumShatters = 2
 	cfg.SeqLen = 10
 	cfg.TokenConfig = *token.DefaultConfig()
@@ -62,7 +62,7 @@ func NewConfig(root string, nbuckets, seqLen int) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	cfg.NumBuckets = nbuckets
+	cfg.NumShards = nbuckets
 	cfg.SeqLen = seqLen
 	return cfg, nil
 }

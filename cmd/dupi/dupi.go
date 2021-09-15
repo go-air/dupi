@@ -28,7 +28,9 @@ import (
 
 var scMap = map[string]SubCmd{
 	"index":   index,
-	"extract": extract}
+	"extract": extract,
+	"blot":    newBlotCmd(),
+	"unblot":  newUnblotCmd()}
 
 var gFlags = flag.NewFlagSet("dupi", flag.ExitOnError)
 

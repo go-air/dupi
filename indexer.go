@@ -50,7 +50,7 @@ func IndexerFromConfig(cfg *Config) (*Indexer, error) {
 	if err != nil {
 		return nil, err
 	}
-	res.shards = make([]shard.Indexer, cfg.NumBuckets)
+	res.shards = make([]shard.Indexer, cfg.NumShards)
 	res.fnames = newFnames()
 	if err := os.Mkdir(res.Root(), 0755); err != nil {
 		return nil, err
@@ -122,7 +122,7 @@ func openFromConfig(cfg *Config) (*Indexer, error) {
 		return nil, err
 	}
 	// internal setup
-	res.shards = make([]shard.Indexer, cfg.NumBuckets)
+	res.shards = make([]shard.Indexer, cfg.NumShards)
 	res.fnames = newFnames()
 	res.dmds = dmd.NewAdder(cfg.IndexRoot, cfg.DocFlushRate)
 
@@ -195,7 +195,7 @@ func (x *Indexer) Close() error {
 		// for all shards to complete before
 		// returning => shards are no longer busy.
 	}
-	for i := 0; i < x.config.NumBuckets; i++ {
+	for i := 0; i < x.config.NumShards; i++ {
 		close(x.shards[i].PostChan())
 	}
 	if err := x.config.Write(); err != nil {

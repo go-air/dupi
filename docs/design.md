@@ -178,7 +178,7 @@ extraction and query sections below, where relatively cheap per-blot processing
 can be iterated over all or a subset of blots.  By focusing on the data
 blot-wise, we effectively reduce the N² nature of the find all duplicates query
 to worst case |blots|x|per-blot-processing-time| query, which in this example is
-much smaller than N².
+_much_ smaller than N².
 
 ### Posting Lists
 
@@ -236,7 +236,7 @@ the index is broken into shards, and there is one goroutine for adding
 to each shard.  Second, the tokenisation and shattering operates 
 with several goroutines.  These elements are coordinated with channels.
 
-On the query side, each query has a dedicated gorouting and multiple
+On the query side, each query has a dedicated goroutine and multiple
 such queries can be executed at once.  Queries present an iterative
 interface allowing back-and-forth communication between the a client,
 such as the command line, and the index server.  
