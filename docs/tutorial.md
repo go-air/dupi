@@ -3,7 +3,7 @@
 ## Install
 
 ```
-go install github.com/scott-cotton/dupi@latest
+go install github.com/go-air/dupi@latest
 ```
 
 ## What to expect and what not to expect.
