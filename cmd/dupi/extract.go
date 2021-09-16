@@ -54,16 +54,6 @@ func (x *extractCmd) Run(args []string) error {
 	query := x.index.StartQuery(dupi.QueryMaxBlot)
 	shape := []dupi.Blot{
 		{Blot: 0, Docs: make([]dupi.Doc, 0, 32)},
-		{Blot: 0, Docs: make([]dupi.Doc, 0, 32)},
-		{Blot: 0, Docs: make([]dupi.Doc, 0, 32)},
-		{Blot: 0, Docs: make([]dupi.Doc, 0, 32)},
-		{Blot: 0, Docs: make([]dupi.Doc, 0, 32)},
-		{Blot: 0, Docs: make([]dupi.Doc, 0, 32)},
-		{Blot: 0, Docs: make([]dupi.Doc, 0, 32)},
-		{Blot: 0, Docs: make([]dupi.Doc, 0, 32)},
-		{Blot: 0, Docs: make([]dupi.Doc, 0, 32)},
-		{Blot: 0, Docs: make([]dupi.Doc, 0, 32)},
-		{Blot: 0, Docs: make([]dupi.Doc, 0, 32)},
 		{Blot: 0, Docs: make([]dupi.Doc, 0, 32)}}
 	for {
 		n, err := query.Next(shape)

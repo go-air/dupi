@@ -22,10 +22,6 @@ import (
 	"github.com/go-air/dupi/token"
 )
 
-type shardMsg struct {
-	posts []post.T
-}
-
 type shatterReq struct {
 	docid    uint32
 	offset   uint32
@@ -37,12 +33,13 @@ func startShatter(ns, n, s int,
 	tf token.TokenizerFunc, blotcfg *blotter.Config,
 	chns []chan []post.T) (chan *shatterReq, error) {
 	rch := make(chan *shatterReq)
+	mono := newMono()
 	for i := 0; i < ns; i++ {
 		bler, err := blotter.FromConfig(blotcfg)
 		if err != nil {
 			return nil, err
 		}
-		sh := newShatter(n, s, tf, bler)
+		sh := newShatter(n, s, tf, bler, mono)
 		copy(sh.shardChns, chns)
 		go func(sh *shatter) {
 			for {
@@ -60,6 +57,16 @@ func startShatter(ns, n, s int,
 	return rch, nil
 }
 
+type mono struct {
+	docid uint32
+	cond  *sync.Cond
+}
+
+func newMono() *mono {
+	var mu sync.Mutex
+	return &mono{cond: sync.NewCond(&mu)}
+}
+
 type shatter struct {
 	tokfn     token.TokenizerFunc
 	tokb      []token.T
@@ -67,15 +74,17 @@ type shatter struct {
 	seqlen    int
 	d         [][]post.T
 	shardChns []chan []post.T
+	mono      *mono
 }
 
-func newShatter(n, s int, tf token.TokenizerFunc, bler blotter.T) *shatter {
+func newShatter(n, s int, tf token.TokenizerFunc, bler blotter.T, mono *mono) *shatter {
 	res := &shatter{
 		tokfn:     tf,
 		bler:      bler,
 		seqlen:    s,
 		shardChns: make([]chan []post.T, n),
-		d:         make([][]post.T, n)}
+		d:         make([][]post.T, n),
+		mono:      mono}
 	for i := range res.shardChns {
 		res.shardChns[i] = make(chan []post.T)
 	}
@@ -100,10 +109,15 @@ func (s *shatter) do(did, offset uint32, msg []byte) {
 		default:
 		}
 	}
-	s.send()
+	s.send(did)
 }
 
-func (s *shatter) send() {
+func (s *shatter) send(did uint32) {
+	s.mono.cond.L.Lock()
+	for s.mono.docid != did-1 {
+		s.mono.cond.Wait()
+	}
+
 	var wg sync.WaitGroup
 	for i, ps := range s.d {
 		wg.Add(1)
@@ -111,15 +125,19 @@ func (s *shatter) send() {
 			defer wg.Done()
 			s.shardChns[i] <- ps
 			<-s.shardChns[i]
-			s.d[i] = nil //ps[:0]
+			s.d[i] = nil //ps[:0] (was racy)
 
 		}(i, ps)
 	}
 	wg.Wait()
+	s.mono.docid = did
+	s.mono.cond.Broadcast()
+	s.mono.cond.L.Unlock()
 }
 
 func (s *shatter) blot(docid, b uint32) {
 	n := uint32(len(s.d))
+
 	i := b % n
 	s.d[i] = append(s.d[i], post.Make(docid, b/n))
 }

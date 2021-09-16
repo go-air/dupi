@@ -16,11 +16,17 @@
 // dupi blots with dupi internal document ids.
 package post
 
+import "fmt"
+
 // a post is a tuple of document id, blot
 type T uint64
 
 func (p T) Docid() uint32 {
 	return uint32(p >> 32)
+}
+
+func (p T) String() string {
+	return fmt.Sprintf("<%d,%x>", p.Docid(), p.Blot()&0xffff)
 }
 
 func (p T) Blot() uint32 {

@@ -42,6 +42,7 @@ func (t *Adder) Add(fid, start, end uint32) (uint32, error) {
 			return 0, err
 		}
 	}
+	n = uint32(len(t.buf))
 	t.buf = append(t.buf, fields{fid, start, end})
 	return n + t.flushed, nil
 }
