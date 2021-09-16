@@ -29,8 +29,8 @@ import (
 // TBD: write and use newIndex(), newExtract()
 // instead of init() ugliness
 var scMap = map[string]SubCmd{
-	"index":   index,
-	"extract": extract,
+	"index":   newIndexCmd(),
+	"extract": newExtractCmd(),
 	"blot":    newBlotCmd(),
 	"unblot":  newUnblotCmd()}
 
@@ -69,8 +69,8 @@ func splitArgs(args []string) ([]string, []string) {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintf(w, "usage: dupi [global opts] <cmd> <args>\n")
-	fmt.Fprintf(w, "commands are:\n")
+	fmt.Fprintf(w, "usage: dupi [global opts] <verb> <args>\n")
+	fmt.Fprintf(w, "verbs are:\n")
 	for k, v := range scMap {
 		fmt.Fprintf(w, "\t%-10s %30s\n", k, v.Usage())
 	}
@@ -78,6 +78,7 @@ func usage(w io.Writer) {
 	gFlags.VisitAll(func(f *flag.Flag) {
 		fmt.Fprintf(w, "\t-%-16s default=%-16q %s\n", f.Name, f.DefValue, f.Usage)
 	})
+	fmt.Fprintf(w, "\nTo get help on a verb, try dupi <verb> -h.\n")
 }
 
 func usageFatal(w io.Writer) {

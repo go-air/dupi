@@ -137,7 +137,6 @@ func (s *shatter) send(did uint32) {
 
 func (s *shatter) blot(docid, b uint32) {
 	n := uint32(len(s.d))
-
 	i := b % n
 	s.d[i] = append(s.d[i], post.Make(docid, b/n))
 }

@@ -30,13 +30,14 @@ type extractCmd struct {
 	json  *bool
 }
 
-var extract = &extractCmd{subCmd: subCmd{
-	name:  "extract",
-	usage: "extract [args]",
-	flags: flag.NewFlagSet("extract", flag.ExitOnError)}}
+func newExtractCmd() *extractCmd {
+	var extract = &extractCmd{subCmd: subCmd{
+		name:  "extract",
+		usage: "extract [args]",
+		flags: flag.NewFlagSet("extract", flag.ExitOnError)}}
 
-func init() {
 	extract.json = extract.flags.Bool("json", false, "output json")
+	return extract
 }
 
 func (x *extractCmd) Usage() string {

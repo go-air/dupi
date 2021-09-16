@@ -36,20 +36,17 @@ type indexCmd struct {
 	indexer *dupi.Indexer
 }
 
-var index = &indexCmd{
-	subCmd: subCmd{
-		name:  "index",
-		flags: flag.NewFlagSet("index", flag.ExitOnError)}}
-
-func init() {
-	index.shards = index.flags.Int("n", 4, "shards")
+func newIndexCmd() *indexCmd {
+	var index = &indexCmd{
+		subCmd: subCmd{
+			name:  "index",
+			flags: flag.NewFlagSet("index", flag.ExitOnError)}}
 	index.seqlen = index.flags.Int("t", 10, "similarity based seq len")
 	index.add = index.flags.Bool("a", false, "add to a given existing index")
 	index.verbose = index.flags.Bool("v", false, "verbose")
 	index.nshat = index.flags.Int("s", 4, "num shatterers")
+	return index
 }
-
-var _ SubCmd = index
 
 func (x *indexCmd) Usage() string {
 	return "paths"
