@@ -10,7 +10,7 @@ Dupi is in alpha/early beta development stage.  Expect bugs.
 ## Input
 
 Throw hundreds of thousands of textual documents at it.  Or extract text from
-other documents and send that to dupy.
+other documents and send that to dupi.
 
 ## Output
 
