@@ -16,8 +16,6 @@ package dupi
 
 import (
 	"fmt"
-	"io"
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -166,17 +164,10 @@ func (x *Index) JoinBlot(shard uint32, sblot uint16) uint32 {
 
 func (x *Index) FindBlot(theBlot uint32, doc *Doc) (start, end uint32, err error) {
 	if doc.Dat == nil {
-		var f *os.File
-		f, err = os.Open(doc.Path)
+		err = doc.Load()
 		if err != nil {
 			return
 		}
-		doc.Dat, err = ioutil.ReadAll(f)
-		if err != nil {
-			return
-		}
-		f.Close()
-		doc.Dat = doc.Dat[doc.Start:doc.End]
 	}
 	toks := x.TokenFunc()(nil, doc.Dat, doc.Start)
 	j := 0
@@ -203,7 +194,7 @@ func (x *Index) FindBlot(theBlot uint32, doc *Doc) (start, end uint32, err error
 		end = tok.Pos + uint32(len(tok.Lit))
 		return
 	}
-	err = io.EOF
+	err = fmt.Errorf("blot %x not found", theBlot)
 	return
 }
 

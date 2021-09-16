@@ -43,16 +43,20 @@ func (ub *unblotCmd) Run(args []string) error {
 		m := make(map[string][]*dupi.Doc)
 		for i := range blot.Docs {
 			doc := &blot.Docs[i]
+
 			start, end, err := idx.FindBlot(hex, doc)
 			if err != nil {
 				log.Printf("warning: %s", err)
 				continue
 			}
-			dat := string(doc.Dat[start:end])
+			dat := string(doc.Dat[start-doc.Start : end-doc.Start])
 			doc.Dat = nil
 			m[dat] = append(m[dat], doc)
 		}
 		for k, ds := range m {
+			if len(ds) < 2 {
+				continue
+			}
 			fmt.Printf("text:\n'''\n%s'''\n", k)
 			for _, d := range ds {
 				fmt.Printf("\t%s %d:%d\n", d.Path, d.Start, d.End)

@@ -16,6 +16,13 @@
 // data in large sets of documents.
 package dupi
 
+import (
+	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+)
+
 type Doc struct {
 	Path  string
 	Start uint32
@@ -27,4 +34,37 @@ func NewDoc(path, body string) *Doc {
 	return &Doc{
 		Path: path,
 		Dat:  []byte(body)}
+}
+
+func (doc *Doc) Load() error {
+	var (
+		f   *os.File
+		err error
+	)
+
+	f, err = os.Open(doc.Path)
+	if err != nil {
+		return err
+	}
+
+	if doc.Start == 0 && doc.End == 0 {
+		doc.Dat, err = ioutil.ReadAll(f)
+		if err != nil {
+			return fmt.Errorf("readall: %w", err)
+		}
+		f.Close()
+		doc.End = uint32(len(doc.Dat))
+	} else {
+		_, err = f.Seek(int64(doc.Start), io.SeekStart)
+		if err != nil {
+			return fmt.Errorf("seek: %w", err)
+		}
+		doc.Dat = make([]byte, doc.End-doc.Start)
+		_, err = f.ReadAt(doc.Dat, int64(doc.Start))
+		if err != nil {
+			return fmt.Errorf("readat len=%d at=%d: %w\n", len(doc.Dat), doc.Start, err)
+		}
+		f.Close()
+	}
+	return nil
 }
