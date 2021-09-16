@@ -16,6 +16,7 @@ package lock
 
 import (
 	"io/ioutil"
+	"os"
 	"testing"
 )
 
@@ -30,5 +31,8 @@ func TestLock(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer lf.Close()
+	defer func() {
+		lf.Close()
+		os.RemoveAll(name)
+	}()
 }
