@@ -57,6 +57,7 @@ func (ub *unblotCmd) Run(args []string) error {
 			m[string(dat)] = append(m[string(dat)], doc)
 		}
 		for k, ds := range m {
+			fmt.Printf("text:\n'''\n%s'''\n", k)
 			for _, d := range ds {
 				fmt.Printf("\t%s %d:%d\n", d.Path, d.Start, d.End)
 			}

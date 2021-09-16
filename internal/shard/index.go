@@ -51,24 +51,24 @@ func (x *Index) Close() error {
 
 func (x *Index) ReadStateFor(blot uint16) *ReadState {
 	/*
-		refCount := x.counts[blot]
-		i := sort.Search(1<<16, func(i int) bool {
-			return x.counts[x.perm[i]] > refCount
-		})
-		if i == len(x.perm) {
-			panic("internal error in perm/count")
-		}
-		if x.perm[i] != blot {
-			fmt.Printf("blot %x i %d perm[%d] %x count %d ref %d %#v\n", blot, i, i, x.perm[i], x.counts[x.perm[i]], refCount, x.perm[i-1:i+2])
-			panic("internal error2 in perm/count")
-		}
+		        broken still
+			refCount := x.counts[blot]
+			i := sort.Search(1<<16, func(i int) bool {
+				return x.counts[x.perm[i]] > refCount
+			})
+			if i == len(x.perm) {
+				panic("internal error in perm/count")
+			}
+			if x.perm[i] != blot {
+				fmt.Printf("blot %x i %d perm[%d] %x count %d ref %d %#v\n", blot, i, i, x.perm[i], x.counts[x.perm[i]], refCount, x.perm[i-1:i+2])
+				panic("internal error2 in perm/count")
+			}
 	*/
 	return x.ReadStateForBlotAt(blot, 0) //uint16(i))
 }
 
 func (x *Index) ReadStateForBlotAt(blot, at uint16) *ReadState {
 	res := &ReadState{}
-	fmt.Printf("head of shard blot %x is %d\n", blot, x.heads[blot])
 	res.Posts = newPosts(x.heads[blot])
 	res.Shard = x.id
 	res.Blot = blot
@@ -110,9 +110,6 @@ func (x *Index) readIix() error {
 		}
 		if err != nil {
 			return err
-		}
-		if i == 0xf974 {
-			fmt.Printf("0xf974: head %d count %d\n", hd, ct)
 		}
 		x.counts[i] = uint32(ct)
 		x.perm[i] = uint16(i)

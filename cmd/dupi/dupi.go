@@ -26,6 +26,8 @@ import (
 	"github.com/google/gops/agent"
 )
 
+// TBD: write and use newIndex(), newExtract()
+// instead of init() ugliness
 var scMap = map[string]SubCmd{
 	"index":   index,
 	"extract": extract,
@@ -70,7 +72,7 @@ func usage(w io.Writer) {
 	fmt.Fprintf(w, "usage: dupi [global opts] <cmd> <args>\n")
 	fmt.Fprintf(w, "commands are:\n")
 	for k, v := range scMap {
-		fmt.Fprintf(w, "\t%s %-16s\n", k, v.Usage())
+		fmt.Fprintf(w, "\t%s %30s\n", k, v.Usage())
 	}
 	fmt.Fprintf(w, "\nglobal options:\n")
 	gFlags.VisitAll(func(f *flag.Flag) {
