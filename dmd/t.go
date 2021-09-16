@@ -27,6 +27,8 @@ type T struct {
 	file *os.File
 }
 
+const rcdSize = 12
+
 func New(root string) (*T, error) {
 	res := &T{path: filepath.Join(root, "dmd")}
 	var err error
@@ -37,20 +39,28 @@ func New(root string) (*T, error) {
 	return res, nil
 }
 
+func (t *T) NumDocs() (uint64, error) {
+	fi, err := t.file.Stat()
+	if err != nil {
+		return 0, err
+	}
+	return uint64(fi.Size()) / rcdSize, nil
+}
+
 func (t *T) Lookup(did uint32) (fid, start, end uint32, err error) {
 	f := t.file
-	_, err = f.Seek(int64(did)*12, 0)
+	_, err = f.Seek(int64(did)*rcdSize, 0)
 	if err != nil {
 		return
 	}
-	var buf [12]byte
+	var buf [rcdSize]byte
 	_, err = io.ReadFull(f, buf[:])
 	if err != nil {
 		return
 	}
 	fid = binary.BigEndian.Uint32(buf[0:4])
 	start = binary.BigEndian.Uint32(buf[4:8])
-	end = binary.BigEndian.Uint32(buf[8:12])
+	end = binary.BigEndian.Uint32(buf[8:rcdSize])
 	return
 }
 

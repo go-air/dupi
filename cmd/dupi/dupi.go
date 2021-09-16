@@ -32,7 +32,8 @@ var scMap = map[string]SubCmd{
 	"index":   newIndexCmd(),
 	"extract": newExtractCmd(),
 	"blot":    newBlotCmd(),
-	"unblot":  newUnblotCmd()}
+	"unblot":  newUnblotCmd(),
+	"inspect": newInspectCmd()}
 
 var gFlags = flag.NewFlagSet("dupi", flag.ExitOnError)
 

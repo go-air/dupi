@@ -15,11 +15,57 @@
 package main
 
 import (
+	"encoding/json"
+	"flag"
+	"fmt"
+	"log"
+	"os"
+
 	"github.com/go-air/dupi"
 )
 
 type inspectCmd struct {
 	subCmd
-	index *dupi.Index
-	json  *bool
+	json *bool
+}
+
+func newInspectCmd() *inspectCmd {
+	sub := &subCmd{
+		name:  "inspect",
+		flags: flag.NewFlagSet("inspect", flag.ExitOnError)}
+	res := &inspectCmd{
+		subCmd: *sub,
+		json:   sub.flags.Bool("json", false, "output json.")}
+	return res
+}
+
+func (in *inspectCmd) Usage() string {
+	return "inspect the root index."
+}
+
+func (in *inspectCmd) Run(args []string) error {
+	var (
+		err error
+		idx *dupi.Index
+	)
+	in.flags.Parse(args)
+	idx, err = dupi.OpenIndex(getIndexRoot())
+	if err != nil {
+		return err
+	}
+	defer idx.Close()
+	st, err := idx.Stats()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if *in.json {
+		d, err := json.MarshalIndent(st, "", "\t")
+		if err != nil {
+			log.Fatal(err)
+		}
+		os.Stdout.Write(d)
+	} else {
+		fmt.Print(st)
+	}
+	return nil
 }

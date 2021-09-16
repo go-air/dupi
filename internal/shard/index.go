@@ -23,12 +23,11 @@ import (
 )
 
 type Index struct {
-	id     uint32
-	path   string
-	heads  [1 << 16]int64
-	counts [1 << 16]uint32
-	perm   [1 << 16]uint16
-	//ind      [1 << 16]Posts
+	id       uint32
+	path     string
+	heads    [1 << 16]int64
+	counts   [1 << 16]uint32
+	perm     [1 << 16]uint16
 	postFile *os.File
 }
 
@@ -89,6 +88,27 @@ func (x *Index) ReadStateAt(i uint16) *ReadState {
 
 func (x *Index) Count(blot uint32) uint32 {
 	return x.counts[blot]
+}
+
+func (x *Index) NumPosts() uint64 {
+	var ttl uint64
+	for _, ct := range x.counts {
+		ttl += uint64(ct)
+	}
+	return ttl
+}
+
+func (x *Index) NumBlots() uint64 {
+	return 1 << 16
+}
+
+func (x *Index) SosDiffs(avg float64) float64 {
+	var ttl float64
+	for _, ct := range x.counts {
+		d := avg - float64(ct)
+		ttl += d * d
+	}
+	return ttl
 }
 
 func (x *Index) readIix() error {

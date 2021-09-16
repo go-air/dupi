@@ -17,6 +17,7 @@ package dupi
 import (
 	"fmt"
 	"log"
+	"math"
 	"os"
 
 	"github.com/go-air/dupi/blotter"
@@ -95,10 +96,36 @@ func (x *Index) Root() string {
 	return x.config.IndexRoot
 }
 
+func (x *Index) Stats() (*Stats, error) {
+	var err error
+	st := &Stats{}
+	st.Root = x.config.IndexRoot
+	st.NumBlots = 1 << 16 * uint64(len(x.shards))
+	st.NumDocs, err = x.dmd.NumDocs()
+	if err != nil {
+		return nil, err
+	}
+	st.NumPaths = uint64(len(x.fnames.d))
+
+	for i := range x.shards {
+		shrd := &x.shards[i]
+		st.NumPosts += shrd.NumPosts()
+	}
+	st.BlotMean = float64(st.NumPosts) / float64(st.NumBlots)
+	var sos float64
+	for i := range x.shards {
+		shrd := &x.shards[i]
+		sos += shrd.SosDiffs(st.BlotMean)
+	}
+	sos /= float64(st.NumBlots)
+	st.BlotSigma = math.Sqrt(sos)
+	return st, nil
+}
+
 func (x *Index) TokenFunc() token.TokenizerFunc {
 	tf, err := token.FromConfig(&x.config.TokenConfig)
 	if err != nil {
-		panic(err) // should be impossible.
+		panic(err) // should be impossible, tf created in ctor
 	}
 	return tf
 }
@@ -159,7 +186,6 @@ func (x *Index) JoinBlot(shard uint32, sblot uint16) uint32 {
 	blot := nsh * uint32(sblot)
 	blot += shard
 	return blot
-
 }
 
 func (x *Index) FindBlot(theBlot uint32, doc *Doc) (start, end uint32, err error) {
