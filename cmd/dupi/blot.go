@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"github.com/go-air/dupi"
-	"github.com/go-air/dupi/blotter"
 	"github.com/go-air/dupi/token"
 )
 
@@ -36,19 +35,15 @@ func (b *blotCmd) Run(args []string) error {
 		log.Fatalf("couldn't open dupi index at '%s': %s", root, err)
 	}
 	defer idx.Close()
-	tokfn := idx.TokenFunc()
-	blotter := idx.Blotter()
-	N := uint32(idx.NumShards() * (1 << 16))
-
 	for _, fname := range b.flags.Args() {
-		if err = b.doFilename(fname, idx, tokfn, blotter, N); err != nil {
+		if err = b.doFilename(fname, idx); err != nil {
 			log.Printf("error processing %s: %s", fname, err)
 		}
 	}
 	return nil
 }
 
-func (b *blotCmd) doFilename(fname string, idx *dupi.Index, tokfn token.TokenizerFunc, blotter blotter.T, N uint32) error {
+func (bc *blotCmd) doFilename(fname string, idx *dupi.Index) error {
 	f, e := os.Open(fname)
 	if e != nil {
 		return e
@@ -58,22 +53,21 @@ func (b *blotCmd) doFilename(fname string, idx *dupi.Index, tokfn token.Tokenize
 	if err != nil {
 		return err
 	}
-	toks := tokfn(nil, dat, 0)
-	for i, tok := range toks {
-		switch tok.Tag {
-		case token.Word:
-			blot := blotter.Blot(tok.Lit)
-			if i < idx.SeqLen() {
-				continue
-			}
-			if *b.offsets {
-				end := tok.Pos + uint32(len(tok.Lit))
-				beg := toks[i-idx.SeqLen()].Pos
-				fmt.Printf("%x %d:%d\n", blot%N, beg, end)
-			} else {
-				fmt.Printf("%x\n", blot%N)
-			}
-		default:
+	doc := &dupi.Doc{Path: fname, Dat: dat, End: uint32(len(dat))}
+	blots := idx.BlotDoc(nil, doc)
+	var toks []token.T
+	if *bc.offsets {
+		toks = idx.TokenFunc()(nil, doc.Dat, 0)
+	}
+	N := uint32(idx.NumShards()) * (1 << 16)
+	seqLen := idx.SeqLen()
+	for i, b := range blots {
+		if *bc.offsets {
+			beg := toks[i].Pos
+			end := toks[i+seqLen].Pos + uint32(len(toks[i+seqLen].Lit))
+			fmt.Printf("%x %d:%d\n", b%N, beg, end)
+		} else {
+			fmt.Printf("%x\n", b%N)
 		}
 	}
 	return nil

@@ -16,6 +16,8 @@ package dupi
 
 import (
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -106,7 +108,7 @@ func (x *Index) TokenFunc() token.TokenizerFunc {
 func (x *Index) Blotter() blotter.T {
 	sh, err := blotter.FromConfig(&x.config.BlotConfig)
 	if err != nil {
-		panic(err)
+		panic(err) // should be impossible.
 	}
 	return sh
 }
@@ -121,6 +123,88 @@ func (x *Index) NumShards() int {
 
 func (x *Index) SeqLen() int {
 	return x.config.SeqLen
+}
+
+func (x *Index) BlotDoc(dst []uint32, doc *Doc) []uint32 {
+	tokfn := x.TokenFunc()
+	blotter := x.Blotter()
+	toks := tokfn(nil, doc.Dat, doc.Start)
+	j := 0
+	for _, tok := range toks {
+		if tok.Tag != token.Word {
+			continue
+		}
+		toks[j] = tok
+		j++
+	}
+	seqLen := x.SeqLen()
+	for i, tok := range toks[:j] {
+		blot := blotter.Blot(tok.Lit)
+		if i < seqLen {
+			continue
+		}
+		dst = append(dst, blot)
+	}
+	return dst
+}
+
+func (x *Index) SplitBlot(b uint32) (shard uint32, sblot uint16) {
+	nsh := uint32(x.NumShards())
+	b = b % (nsh * (1 << 16))
+	shard = b % nsh
+	sblot = uint16(b / nsh)
+	return
+}
+
+func (x *Index) JoinBlot(shard uint32, sblot uint16) uint32 {
+	nsh := uint32(x.NumShards())
+	blot := nsh * uint32(sblot)
+	blot += shard
+	return blot
+
+}
+
+func (x *Index) FindBlot(theBlot uint32, doc *Doc) (start, end uint32, err error) {
+	if doc.Dat == nil {
+		var f *os.File
+		f, err = os.Open(doc.Path)
+		if err != nil {
+			return
+		}
+		doc.Dat, err = ioutil.ReadAll(f)
+		if err != nil {
+			return
+		}
+		f.Close()
+		doc.Dat = doc.Dat[doc.Start:doc.End]
+	}
+	toks := x.TokenFunc()(nil, doc.Dat, doc.Start)
+	j := 0
+	for _, tok := range toks {
+		if tok.Tag != token.Word {
+			continue
+		}
+		toks[j] = tok
+		j++
+	}
+	blotter := x.Blotter()
+	seqLen := x.SeqLen()
+	nShard := uint32(x.NumShards())
+	for i, tok := range toks[:j] {
+		blot := blotter.Blot(tok.Lit)
+		if i < seqLen {
+			continue
+		}
+		blot %= nShard * (1 << 16)
+		if blot != theBlot {
+			continue
+		}
+		start = toks[i-seqLen].Pos
+		end = tok.Pos + uint32(len(tok.Lit))
+		return
+	}
+	err = io.EOF
+	return
 }
 
 func (x *Index) StartQuery(s QueryStrategy) *Query {
