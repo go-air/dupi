@@ -52,7 +52,7 @@ func init() {
 var _ SubCmd = index
 
 func (x *indexCmd) Usage() string {
-	return "\tpaths"
+	return "paths"
 }
 
 func (x *indexCmd) getIndexer() (*dupi.Indexer, error) {

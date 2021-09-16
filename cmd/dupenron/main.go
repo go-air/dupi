@@ -118,7 +118,7 @@ func indexEnron(index *dupi.Indexer, fname string) error {
 			msg = msg[ibody+2:]
 		}
 		doc := &dupi.Doc{
-			Path:  "/" + rcd[0],
+			Path:  fname, //"/" + rcd[0],
 			Dat:   msg,
 			Start: uint32(offset)}
 		doc.End = offset + uint32(len(doc.Dat))
