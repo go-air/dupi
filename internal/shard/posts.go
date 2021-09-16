@@ -30,6 +30,21 @@ type Posts struct {
 	vbuf    []byte
 }
 
+func newPosts(head int64) *Posts {
+	res := &Posts{}
+	res.init(head)
+	return res
+}
+
+func (p *Posts) init(head int64) {
+	p.i = 0
+	p.nextpos = head
+	p.docids = make([]uint32, 0, flushRate)
+	p.buf = make([]byte, flushRate+2*binary.MaxVarintLen64+8)
+	p.vbuf = p.buf[:binary.MaxVarintLen64]
+	p.buf = p.buf[binary.MaxVarintLen64:]
+}
+
 func readVarintAt(r io.ReaderAt, p int64) (int64, int64, error) {
 	var (
 		buf [binary.MaxVarintLen64]byte
@@ -56,21 +71,6 @@ func readVarintAt(r io.ReaderAt, p int64) (int64, int64, error) {
 	return v, n, nil
 }
 
-func newPosts(head int64) *Posts {
-	res := &Posts{}
-	res.init(head)
-	return res
-}
-
-func (p *Posts) init(head int64) {
-	p.i = 0
-	p.nextpos = head
-	p.docids = make([]uint32, 0, flushRate)
-	p.buf = make([]byte, flushRate+2*binary.MaxVarintLen64+8)
-	p.vbuf = p.buf[:binary.MaxVarintLen64]
-	p.buf = p.buf[binary.MaxVarintLen64:]
-}
-
 func (p *Posts) next(r io.ReaderAt) (uint32, error) {
 	if p.i == len(p.docids) {
 		if p.nextpos == -1 {
@@ -89,11 +89,11 @@ func (p *Posts) next(r io.ReaderAt) (uint32, error) {
 func (p *Posts) readNext(r io.ReaderAt) error {
 	v, n, err := readVarintAt(r, p.nextpos)
 	if err != nil {
-		return err
+		return fmt.Errorf("1 %w\n", err)
 	}
 	_, err = r.ReadAt(p.buf[:v], p.nextpos+n)
 	if err != nil {
-		return err
+		return fmt.Errorf("2 %w\n", err)
 	}
 	var (
 		t, i int

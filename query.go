@@ -46,8 +46,38 @@ type Query struct {
 	strategy QueryStrategy
 }
 
+func (q *Query) Get(blot *Blot) error {
+	shard := blot.Blot % q.state.n
+	shardblot := uint16(blot.Blot / q.state.n)
+	rs := q.index.shards[shard].ReadStateFor(shardblot)
+	var (
+		lim   = blot.Docs != nil
+		docid uint32
+		err   error
+	)
+
+	for {
+		if lim && len(blot.Docs) == cap(blot.Docs) {
+			return nil
+		}
+		docid, err = rs.Next()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		if !lim && len(blot.Docs) == cap(blot.Docs) {
+			blot.Docs = append(blot.Docs, Doc{})
+			blot.Docs = blot.Docs[:len(blot.Docs)-1]
+		}
+		if err = q.index.docid2Doc(docid, blot.Next()); err != nil {
+			return err
+		}
+	}
+}
+
 func (q *Query) Next(dst []Blot) (n int, err error) {
-	q.state.blot = ^uint32(0)
 	state := q.state
 	for n < len(dst) {
 		dstBlot := &dst[n]
@@ -87,7 +117,6 @@ func (q *Query) fillBlot(dst *Blot, src *shard.ReadState, srcPos uint32) (int, e
 		err   error
 		n     int
 	)
-	q.state.blot = uint32(src.Blot)
 	dst.Blot = uint32(src.Blot)*q.state.n + q.state.i
 	for dst.Len() < dst.Cap() {
 		docid, err = src.Next()

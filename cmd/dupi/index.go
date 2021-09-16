@@ -122,7 +122,7 @@ func (x *indexCmd) mkWalkFn(perr *error) func(path string, entry fs.DirEntry, er
 			*perr = err
 			return err
 		}
-		doc := &dupi.Doc{Path: path, Dat: dat}
+		doc := &dupi.Doc{Path: path, Dat: dat, End: uint32(len(dat))}
 		return x.indexer.Add(doc)
 	}
 }
