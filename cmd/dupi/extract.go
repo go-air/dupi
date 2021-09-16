@@ -96,6 +96,8 @@ func (x *extractCmd) Run(args []string) error {
 				fmt.Printf("\n")
 			}
 		}
-		shape[0].Docs = shape[0].Docs[:0]
+		for i := range shape {
+			shape[i].Docs = shape[i].Docs[:0]
+		}
 	}
 }
