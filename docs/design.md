@@ -331,7 +331,7 @@ whose blots do not overlap.
 
 ## Conclusions
 
-dupi is novel, fast, flexible, effective and scalable mechanism for finding
+Dupi is novel, fast, flexible, effective and scalable mechanism for finding
 duplicates over large sets of data.  Currently a beefy machine can easily scale
 to a billion documents.  dupi is not yet however distributed so we do not yet
 scale to hundreds or thousands of terabytes of documents.  
