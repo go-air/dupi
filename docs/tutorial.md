@@ -92,14 +92,32 @@ dupi extract
 dupi index -a /path/to/new/docs
 ```
 
+## Blotting
+
+Sometimes it might be interesting to see if a file has a blot.  Dupi
+provides the ability to blot files using the same mechanism as is
+used in the index.
+
+```
+dupi blot file
+```
+
+
 ## Querying the index
 
-At the moment, all we provide is this:
+Dupi provides primitives for unblotting, which takes a blot and
+reconstructs the corresponding text and instances.  This is still
+rudimentary, but here are some examples.
 
 ```
 dupi extract | awk '{print $1}' | xargs dupi unblot
 ```
 
+Or 
+
+```
+dupi blot file | xargs dupi unblot
+```
 
 ## Conclusion
 
