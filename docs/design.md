@@ -218,22 +218,27 @@ and outputs the blots and document occurences, in one per line or json formats.
 Extraction is parameterised on the standard deviation of the distribution of
 the number of documents associated with blots.  One can restrict to those
 blots which have frequency not less than the mean μ + σ by specifying σ as
-a command line parameter.
+a command line parameter.  The lower the value of σ, the more output and
+the more likely the number of co-occurrences of snippets with the same blot
+decreases.
 
 Extraction can output the associated documents one per line, or in json format,
 giving a consumer a much-reduced set of pairs of documents to analyse.  This raw
-form can produce a lot of documents of documents an does not by itself show or
-test the associated text.
+form can produce a lot of documents and does not by itself show or test the
+associated text.
 
-The extraction mechanism composes with 'unblot', which does the inverse of
-blotting: given a blot, it finds the set of associated texts and the documents
-in which they appear.
+The extraction mechanism composes with the dupi 'unblot' verb, which does the
+inverse of blotting: given a blot, it finds the set of associated texts and the
+documents in which they appear.  This step provides the actual duplicated text
+and associated documents, removing the noise from the more approximate mechanism
+of extraction by shared blot.
 
 ### Query
 
 Query works exactly like extraction, except we restrict the set of blots
 visited to those which have a hit for the input document or set of 
-documents. 
+documents.
+ 
 
 ## Concurrent Design
 
