@@ -70,7 +70,7 @@ common, will we be able to find the band "The The"?).
 Post lists are most commonly compressed by storing differences between successive
 document ids in sorted order with a variable length encoding.
 
-## dupi Overview
+## Dupi Overview
 
 dupi works in the paradigm above of inverted indices, with a few substantial
 twists.  Here is the flow for creating a dupi index from a document:
@@ -100,10 +100,10 @@ Blots must be roughly evenly distributed for a document set.  As a
 result, one cannot use letters or words as the defining parameters of
 a blot, as letters and words generally occur in exponential distribution.
 If blots are not roughly evenly distributed, then the space of potential
-duplicates increases, which is undesireable.
+duplicates increases, which is undesireable. 
 
 This can in principle be accomplished any number of ways, and Dupi
-allows extending and pluging in blotter.T objects of any sort.  A 
+allows extending and plugging in blotter.T objects of any sort.  A 
 few basic blottering techniques are provided.
 
 First, dupi _tiles_ the token stream into tiles of sufficient size
@@ -205,7 +205,7 @@ input data.
 ## Extraction
 
 Dupi provides a command to extract duplicates or candidate duplicates from
-a set of indexed documents.  
+a set of indexed documents.
 
 On startup, dupi sorts the blots in descending order of frequency of associated
 documents, based on the idea that a blot with many documents is more likely to
@@ -213,15 +213,21 @@ represent duplicate text than a blot with an expected number of associated
 documents just based on the document number and size and the uniform-ish
 distribution of shattering. 
 
-The extraction mechanism visits the blots in descending order, skipping any
-blots of size 1 or 0.  It can output the associated documents one per line, or
-in json format, giving a consumer a much-reduced set of pairs of documents to
-analyse.  This raw form can produce a lot of documents of documents an does not
-by itself show or test the associated text.
+The extraction mechanism visits the blots in descending frequency order, 
+and outputs the blots and document occurences, in one per line or json formats.
+Extraction is parameterised on the standard deviation of the distribution of
+the number of documents associated with blots.  One can restrict to those
+blots which have frequency not less than the mean μ + σ by specifying σ as
+a command line parameter.
 
-### Blot filtering
+Extraction can output the associated documents one per line, or in json format,
+giving a consumer a much-reduced set of pairs of documents to analyse.  This raw
+form can produce a lot of documents of documents an does not by itself show or
+test the associated text.
 
-TBD: filtering
+The extraction mechanism composes with 'unblot', which does the inverse of
+blotting: given a blot, it finds the set of associated texts and the documents
+in which they appear.
 
 ### Query
 
@@ -231,40 +237,67 @@ documents.
 
 ## Concurrent Design
 
-The indexing engine has 2 components which operate concurrently. First,
-the index is broken into shards, and there is one goroutine for adding
-to each shard.  Second, the tokenisation and shattering operates 
-with several goroutines.  These elements are coordinated with channels.
+The indexing engine has 2 components which operate concurrently. First, the
+index is broken into shards, and there is one goroutine for adding to each
+shard.  Second, the tokenisation and shattering operates with several
+goroutines, processing documents in parallel.  These elements are coordinated
+with channels.  A sync.Cond is used to guarantee that shattered document posts
+arrive at the shards in increasing order of document id. 
 
-On the query side, each query has a dedicated goroutine and multiple
-such queries can be executed at once.  Queries present an iterative
-interface allowing back-and-forth communication between the a client,
-such as the command line, and the index server.  
-
-All i/o operations on the query side are concurrent safe, so many
-queries share the underlying file descriptor for every shard.
+On the query side, each query has a dedicated goroutine and multiple such
+queries can be executed at once.  Queries present an iterative interface
+allowing back-and-forth communication between the a client, such as the command
+line, and the index server.  All i/o operations on the query side are concurrent
+safe, using io.ReadAt, so many queries share the underlying file descriptor 
+for every shard.  This makes it easy to scale in terms of number of 
+concurrent queries.
 
 ## Future Work
 
+### Taboo List
+
+It can happen, such as in software repositories, that many files have some
+boilerplate headers, such as copyright notices.  It can be inconvenient to 
+filter out such data before indexing.  If Dupi allows to manage a taboo list,
+which is a (presumable small) set of documents which are duplicated but not
+interesting, (such as copyright notices), that could go a long way to making the
+output more interesting.
+
+### Blot merging
+
+Given a blot which is part of duplicated text, there are likely other related
+blots.  It would be nice to merge these by re-shattering the associated document
+like unblot does but then additionally solving a weighted, multidocument 
+variation of the longest common subsequence problem in order to output the full
+duplicated text and associated documents. 
+
+
 ### Workflows
 
-Some large document set review workflows need a feedback 
+Some large document set review workflows need a feedback loop, perhaps more
+involved than just a taboo list.  While Dupi supports appending to an index,
+workflows need to be defined and put in place for managing continuously 
+growing document sets, and/or perhaps deleting documents.
 
 ### Go
 
+Write a, or some, tokeniser(s) for Go which find cut n paste code.
+
 ### Generic programming languages
+
+Idem, but just using different tokenizers.
 
 ### Improved Blotting
 
 Blotting gives a function which is blind to the order of the tile 
-to which it is applied.
+to which it is applied.  What alternatives are there, what properties
+do they have w.r.t. the end result?
 
 ### Explore DNA sequence duplicates
 
 Dupi is built for large data sets, and looking at things like BLAST [blast]
 it seems this kind of token-shatter-index architecture could be applied
 with success at the DNA sequence level.
-
 
 ## Related Work
 
@@ -295,7 +328,6 @@ paired documents can be established, rejected, and estimated by looking at the
 degree of overlap of blots.  Like a Bloom filter, Dupi indices can safely
 _reject_ a large set of possibly duplicative documents, as all those documents 
 whose blots do not overlap.
-
 
 ## Conclusions
 
