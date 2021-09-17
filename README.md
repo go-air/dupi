@@ -5,7 +5,10 @@ documents.
 
 ## Status
 
-Dupi is in alpha/early beta development stage.  Expect bugs.
+Dupi is in alpha/early beta development stage.  Please feel free to give it a try
+(and [file issues](https://github.com/go-air/dupi/issues)).  We have run it on
+several document sets successfully, but it definitely needs more testing to be deployed
+for commercial purposes.
 
 ## Input
 
