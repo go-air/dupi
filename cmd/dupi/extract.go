@@ -19,6 +19,8 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
+	"math"
 	"os"
 
 	"github.com/go-air/dupi"
@@ -28,6 +30,7 @@ type extractCmd struct {
 	subCmd
 	index *dupi.Index
 	json  *bool
+	sigma *float64
 }
 
 func newExtractCmd() *extractCmd {
@@ -37,6 +40,7 @@ func newExtractCmd() *extractCmd {
 		flags: flag.NewFlagSet("extract", flag.ExitOnError)}}
 
 	extract.json = extract.flags.Bool("json", false, "output json")
+	extract.sigma = extract.flags.Float64("sigma", 2.0, "explore blots within σ of average (higher=most probable dups, lower=more volume)")
 	return extract
 }
 
@@ -52,10 +56,14 @@ func (x *extractCmd) Run(args []string) error {
 		return err
 	}
 	defer x.index.Close()
+	st, err := x.index.Stats()
+	if err != nil {
+		log.Fatal(err)
+	}
+	σ := *x.sigma
+	N := int(math.Round(st.BlotMean + σ*st.BlotSigma))
 	query := x.index.StartQuery(dupi.QueryMaxBlot)
-	shape := []dupi.Blot{
-		{Blot: 0, Docs: make([]dupi.Doc, 0, 32)},
-		{Blot: 0, Docs: make([]dupi.Doc, 0, 32)}}
+	shape := []dupi.Blot{{Blot: 0}}
 	for {
 		n, err := query.Next(shape)
 		if err == io.EOF {
@@ -66,6 +74,9 @@ func (x *extractCmd) Run(args []string) error {
 		}
 		if n == 0 {
 			return fmt.Errorf("Query.Next gave 0 and no error")
+		}
+		if len(shape[0].Docs) < N {
+			return nil
 		}
 		if *x.json {
 			shp2 := shape
@@ -98,7 +109,7 @@ func (x *extractCmd) Run(args []string) error {
 			}
 		}
 		for i := range shape {
-			shape[i].Docs = shape[i].Docs[:0]
+			shape[i].Docs = nil
 		}
 	}
 }

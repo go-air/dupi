@@ -10,11 +10,14 @@ import (
 
 type unblotCmd struct {
 	subCmd
+	all *bool
 }
 
 func newUnblotCmd() *unblotCmd {
-	return &unblotCmd{
+	cmd := &unblotCmd{
 		subCmd: subCmd{name: "unblot", flags: flag.NewFlagSet("unblot", flag.ExitOnError)}}
+	cmd.all = cmd.flags.Bool("all", false, "output all matches")
+	return cmd
 }
 
 func (ub *unblotCmd) Usage() string {
@@ -54,7 +57,7 @@ func (ub *unblotCmd) Run(args []string) error {
 			m[dat] = append(m[dat], doc)
 		}
 		for k, ds := range m {
-			if len(ds) < 2 {
+			if !*ub.all && len(ds) < 2 {
 				continue
 			}
 			fmt.Printf("text:\n'''\n%s'''\n", k)

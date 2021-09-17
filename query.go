@@ -67,11 +67,7 @@ func (q *Query) Get(blot *Blot) error {
 		if err != nil {
 			return err
 		}
-		if !lim && len(blot.Docs) == cap(blot.Docs) {
-			blot.Docs = append(blot.Docs, Doc{})
-			blot.Docs = blot.Docs[:len(blot.Docs)-1]
-		}
-		if err = q.index.docid2Doc(docid, blot.Next()); err != nil {
+		if err = q.index.docid2Doc(docid, blot.Next(lim)); err != nil {
 			return err
 		}
 	}
@@ -97,13 +93,18 @@ func (q *Query) Next(dst []Blot) (n int, err error) {
 			}
 			continue
 		}
+		lim := dstBlot.Docs != nil
 		_, err = q.fillBlot(dstBlot, shardState, state.i)
 		if err != nil {
 			return
 		}
 		if len(dstBlot.Docs) <= 1 {
 			q.advance(shardState, state.i)
-			dstBlot.Docs = dstBlot.Docs[:0]
+			if lim {
+				dstBlot.Docs = dstBlot.Docs[:0]
+			} else {
+				dstBlot.Docs = nil
+			}
 			continue
 		}
 		n++
@@ -116,20 +117,20 @@ func (q *Query) fillBlot(dst *Blot, src *shard.ReadState, srcPos uint32) (int, e
 		docid uint32
 		err   error
 		n     int
+		lim   bool
 	)
 	dst.Blot = uint32(src.Blot)*q.state.n + q.state.i
-	for dst.Len() < dst.Cap() {
+	lim = dst.Docs != nil
+	for !lim || dst.Len() < dst.Cap() {
 		docid, err = src.Next()
 		if err == io.EOF {
 			q.advance(src, srcPos)
 			return n, nil
 		} else if err != nil {
 			return 0, err
-		} else if docid == 0 {
-			continue
 		}
 		n++
-		q.index.docid2Doc(docid, dst.Next())
+		q.index.docid2Doc(docid, dst.Next(lim))
 	}
 	return n, err
 }

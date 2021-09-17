@@ -45,6 +45,7 @@ func newIndexCmd() *indexCmd {
 	index.add = index.flags.Bool("a", false, "add to a given existing index")
 	index.verbose = index.flags.Bool("v", false, "verbose")
 	index.nshat = index.flags.Int("s", 4, "num shatterers")
+	index.shards = index.flags.Int("n", 4, "num shards")
 	return index
 }
 

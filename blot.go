@@ -44,8 +44,12 @@ func (b *Blot) Len() int {
 	return len(b.Docs)
 }
 
-func (b *Blot) Next() *Doc {
+func (b *Blot) Next(lim bool) *Doc {
 	n := len(b.Docs)
-	b.Docs = b.Docs[:n+1]
+	if lim {
+		b.Docs = b.Docs[:n+1]
+	} else {
+		b.Docs = append(b.Docs, Doc{})
+	}
 	return &b.Docs[n]
 }
