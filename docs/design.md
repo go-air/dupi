@@ -334,8 +334,7 @@ whose blots do not overlap.
 dupi is novel, fast, flexible, effective and scalable mechanism for finding
 duplicates over large sets of data.  Currently a beefy machine can easily scale
 to a billion documents.  dupi is not yet however distributed so we do not yet
-scale to hundreds or thousands of terabytes of documents.  For future work, we
-plan on examining peer to peer xor based protocols to address this.
+scale to hundreds or thousands of terabytes of documents.  
 
 
 ## References
