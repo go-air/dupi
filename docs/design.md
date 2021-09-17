@@ -271,6 +271,11 @@ like unblot does but then additionally solving a weighted, multidocument
 variation of the longest common subsequence problem in order to output the full
 duplicated text and associated documents. 
 
+### Input validation/filtering
+
+It would be nice to validate utf8 correctness of input and filter out
+binary files automatically.
+
 
 ### Workflows
 
