@@ -125,7 +125,7 @@ h₁ ≐ fₕ(t₁) ⊕ fₕ(t₂) ⊕ … ⊕ fₕ(tₖ)
 
 We can then advance to the next hash value with
 ```
-hᵢ₊₁ ≐ hᵢ ⊕ fₕ(tᵢ) ⊕ fₕ(tₖ₊₁)
+hᵢ₊₁ ≐ hᵢ ⊕ fₕ(tᵢ) ⊕ fₕ₊ᵢ(tₖ₊ᵢ₊₁)
 ```
 
 This can be easily implemented in a circular buffer of hash values.
@@ -238,7 +238,7 @@ of extraction by shared blot.
 Query works exactly like extraction, except we restrict the set of blots
 visited to those which have a hit for the input document or set of 
 documents.
- 
+
 
 ## Concurrent Design
 
