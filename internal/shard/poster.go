@@ -49,6 +49,11 @@ func (p *poster) initCommon(blot uint16) {
 func (p *poster) initCreate(w io.Writer, blot uint16) error {
 	p.initCommon(blot)
 	_, err := p.writeVarint64(w, p.head)
+	if err != nil {
+		return err
+	}
+	var buf [4]byte
+	_, err = w.Write(buf[:])
 	return err
 }
 
@@ -65,6 +70,15 @@ func (p *poster) initAppend(r io.ByteReader, blot uint16) error {
 		return fmt.Errorf("invalid total: %d", ttl)
 	}
 	p.total = uint32(ttl)
+	var buf [4]byte
+	for i := range buf {
+		buf[i], err = r.ReadByte()
+		if err != nil {
+			return err
+		}
+	}
+	p.current = binary.BigEndian.Uint32(buf[:])
+
 	return err
 }
 

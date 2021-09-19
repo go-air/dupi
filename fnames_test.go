@@ -65,6 +65,13 @@ func TestFnames(t *testing.T) {
 	if ss.abs(ab) != "/a/b" {
 		t.Errorf("bad ss-absab")
 	}
+	bc, err := ss.addPath("/b/c")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ss.abs(bc) != "/b/c" {
+		t.Errorf("bad bc path")
+	}
 	t.Logf("cwd: '%s'\n", ss.abs(cwd))
 	t.Logf("%s\n", ss)
 

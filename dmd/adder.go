@@ -16,6 +16,7 @@ package dmd
 
 import (
 	"encoding/binary"
+	"io"
 	"os"
 	"path/filepath"
 )
@@ -27,11 +28,26 @@ type Adder struct {
 	buf       []fields
 }
 
-func NewAdder(root string, fr int) *Adder {
+func NewAdder(root string, fr int) (*Adder, error) {
 	ufr := uint32(fr)
-	return &Adder{
-		path: filepath.Join(root, "dmd"), flushRate: ufr,
-		buf: make([]fields, 1, fr)}
+	path := filepath.Join(root, "dmd")
+	adder := &Adder{path: path, flushRate: ufr}
+	fi, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		adder.buf = make([]fields, 1, fr)
+		adder.flushed = 0
+		return adder, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	adder.flushed = uint32(fi.Size() / rcdSize)
+	if adder.flushed == 0 {
+		adder.buf = make([]fields, 1, fr)
+	} else {
+		adder.buf = make([]fields, 0, fr)
+	}
+	return adder, nil
 }
 
 func (t *Adder) Add(fid, start, end uint32) (uint32, error) {
@@ -47,6 +63,10 @@ func (t *Adder) Add(fid, start, end uint32) (uint32, error) {
 	return n + t.flushed, nil
 }
 
+func (t *Adder) Last() uint32 {
+	return t.flushed + uint32(len(t.buf)) - 1
+}
+
 func (t *Adder) Close() error {
 	if len(t.buf) == 0 {
 		return nil
@@ -60,6 +80,10 @@ func (t *Adder) flush() error {
 		return err
 	}
 	defer f.Close()
+	_, err = f.Seek(0, io.SeekEnd)
+	if err != nil {
+		return err
+	}
 	for i := range t.buf {
 		fields := &t.buf[i]
 		err := binary.Write(f, binary.BigEndian, fields)

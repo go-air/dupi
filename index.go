@@ -250,7 +250,7 @@ func (x *Index) qstate(s QueryStrategy) *qstate {
 func (x *Index) docid2Doc(did uint32, doc *Doc) error {
 	fid, start, end, err := x.dmd.Lookup(did)
 	if err != nil {
-		return err
+		return fmt.Errorf("docid2Doc(%d) dmd gave %w", did, err)
 	}
 	doc.Path = x.fnames.abs(fid)
 	doc.Start = start

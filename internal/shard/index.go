@@ -18,6 +18,7 @@ import (
 	"bufio"
 	"encoding/binary"
 	"fmt"
+	"io"
 	"os"
 	"sort"
 )
@@ -133,6 +134,12 @@ func (x *Index) readIix() error {
 		}
 		x.counts[i] = uint32(ct)
 		x.perm[i] = uint16(i)
+		// unused for reading
+		var buf [4]byte
+		_, err = io.ReadFull(r, buf[:])
+		if err != nil {
+			return err
+		}
 	}
 	sort.Slice(x.perm[:], func(i, j int) bool {
 		return x.counts[x.perm[i]] > x.counts[x.perm[j]]

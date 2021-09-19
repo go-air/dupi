@@ -129,8 +129,11 @@ func (q *Query) fillBlot(dst *Blot, src *shard.ReadState, srcPos uint32) (int, e
 		} else if err != nil {
 			return 0, err
 		}
+		err = q.index.docid2Doc(docid, dst.Next(lim))
+		if err != nil {
+			return n, err
+		}
 		n++
-		q.index.docid2Doc(docid, dst.Next(lim))
 	}
 	return n, err
 }

@@ -16,6 +16,7 @@ package shard
 
 import (
 	"bufio"
+	"encoding/binary"
 	"fmt"
 	"log"
 	"os"
@@ -133,6 +134,12 @@ func (x *Indexer) flushIix() error {
 		if err != nil {
 			return err
 		}
+		var buf [4]byte
+		binary.BigEndian.PutUint32(buf[:], up.current)
+		_, err = iix.Write(buf[:])
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -160,6 +167,7 @@ func (x *Indexer) Serve() {
 		for _, p := range ps {
 			docid, hash := p.Docid(), p.Blot()
 			hash &= 0xffff
+			fmt.Printf("adding post (%d,%x)\n", docid, hash)
 			err := x.ind[hash].AddPost(docid, x.postFile)
 			if err != nil {
 				log.Printf("couldn't add post: %s", err)

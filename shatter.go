@@ -29,11 +29,11 @@ type shatterReq struct {
 	shutdown bool
 }
 
-func startShatter(ns, n, s int,
+func startShatter(ns, n, s int, lastDid uint32,
 	tf token.TokenizerFunc, blotcfg *blotter.Config,
 	chns []chan []post.T) (chan *shatterReq, error) {
 	rch := make(chan *shatterReq)
-	mono := newMono()
+	mono := newMono(lastDid)
 	for i := 0; i < ns; i++ {
 		bler, err := blotter.FromConfig(blotcfg)
 		if err != nil {
@@ -62,9 +62,9 @@ type mono struct {
 	cond  *sync.Cond
 }
 
-func newMono() *mono {
+func newMono(docid uint32) *mono {
 	var mu sync.Mutex
-	return &mono{cond: sync.NewCond(&mu)}
+	return &mono{cond: sync.NewCond(&mu), docid: docid}
 }
 
 type shatter struct {

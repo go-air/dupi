@@ -59,7 +59,10 @@ func IndexerFromConfig(cfg *Config) (*Indexer, error) {
 	if err != nil {
 		return nil, err
 	}
-	res.dmds = dmd.NewAdder(cfg.IndexRoot, cfg.DocFlushRate)
+	res.dmds, err = dmd.NewAdder(cfg.IndexRoot, cfg.DocFlushRate)
+	if err != nil {
+		return nil, err
+	}
 	postChans := make([]chan []post.T, len(res.shards))
 	for i := range res.shards {
 		shard := &res.shards[i]
@@ -71,7 +74,8 @@ func IndexerFromConfig(cfg *Config) (*Indexer, error) {
 		go shard.Serve()
 	}
 	res.shatter, err = startShatter(cfg.NumShatters,
-		len(res.shards), cfg.SeqLen, tokfn, &cfg.BlotConfig, postChans)
+		len(res.shards), cfg.SeqLen, res.dmds.Last(), tokfn,
+		&cfg.BlotConfig, postChans)
 	if err != nil {
 		return nil, err
 	}
@@ -123,8 +127,10 @@ func openFromConfig(cfg *Config) (*Indexer, error) {
 	}
 	// internal setup
 	res.shards = make([]shard.Indexer, cfg.NumShards)
-	res.fnames = newFnames()
-	res.dmds = dmd.NewAdder(cfg.IndexRoot, cfg.DocFlushRate)
+	res.dmds, err = dmd.NewAdder(cfg.IndexRoot, cfg.DocFlushRate)
+	if err != nil {
+		return nil, err
+	}
 
 	if err = res.readfiles(); err != nil {
 		return nil, err
@@ -133,7 +139,6 @@ func openFromConfig(cfg *Config) (*Indexer, error) {
 	if err != nil {
 		return nil, err
 	}
-	blotcfg := &cfg.BlotConfig
 
 	postChans := make([]chan []post.T, len(res.shards))
 	for i := range res.shards {
@@ -146,7 +151,8 @@ func openFromConfig(cfg *Config) (*Indexer, error) {
 		go shard.Serve()
 	}
 	res.shatter, err = startShatter(cfg.NumShatters,
-		len(res.shards), cfg.SeqLen, tokenfn, blotcfg, postChans)
+		len(res.shards), cfg.SeqLen, res.dmds.Last(), tokenfn,
+		&cfg.BlotConfig, postChans)
 	if err != nil {
 		return nil, err
 	}
