@@ -5,23 +5,23 @@ package main
 
 import "flag"
 
-type SubCmd interface {
+type Verb interface {
 	Name() string
 	Flags() *flag.FlagSet
 	Run(args []string) error
 	Usage() string
 }
 
-type subCmd struct {
+type verb struct {
 	name  string
 	flags *flag.FlagSet
 	usage string
 }
 
-func (s *subCmd) Name() string {
+func (s *verb) Name() string {
 	return s.name
 }
 
-func (s *subCmd) Flags() *flag.FlagSet {
+func (s *verb) Flags() *flag.FlagSet {
 	return s.flags
 }

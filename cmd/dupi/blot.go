@@ -26,13 +26,13 @@ import (
 )
 
 type blotCmd struct {
-	subCmd
+	verb
 	offsets *bool
 }
 
 func newBlotCmd() *blotCmd {
 	cmd := &blotCmd{
-		subCmd: subCmd{name: "blot", flags: flag.NewFlagSet("blot", flag.ExitOnError)}}
+		verb: verb{name: "blot", flags: flag.NewFlagSet("blot", flag.ExitOnError)}}
 	cmd.offsets = cmd.flags.Bool("offsets", false, "show text position of blots")
 	return cmd
 }

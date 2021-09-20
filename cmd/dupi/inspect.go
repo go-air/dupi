@@ -25,17 +25,17 @@ import (
 )
 
 type inspectCmd struct {
-	subCmd
+	verb
 	json  *bool
 	files *bool
 }
 
 func newInspectCmd() *inspectCmd {
-	sub := &subCmd{
+	sub := &verb{
 		name:  "inspect",
 		flags: flag.NewFlagSet("inspect", flag.ExitOnError)}
 	res := &inspectCmd{
-		subCmd: *sub,
+		verb: *sub,
 		json:   sub.flags.Bool("json", false, "output json."),
 		files:  sub.flags.Bool("files", false, "output file info.")}
 	return res

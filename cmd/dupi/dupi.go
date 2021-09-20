@@ -28,7 +28,7 @@ import (
 
 // TBD: write and use newIndex(), newExtract()
 // instead of init() ugliness
-var scMap = map[string]SubCmd{
+var scMap = map[string]Verb{
 	"index":   newIndexCmd(),
 	"extract": newExtractCmd(),
 	"blot":    newBlotCmd(),
@@ -60,7 +60,7 @@ func getIndexRoot() string {
 func splitArgs(args []string) ([]string, []string) {
 	var i int
 	var arg string
-	var sc SubCmd
+	var sc Verb
 	for i, arg = range args {
 		sc = scMap[arg]
 		if sc != nil {

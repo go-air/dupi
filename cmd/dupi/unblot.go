@@ -23,13 +23,13 @@ import (
 )
 
 type unblotCmd struct {
-	subCmd
+	verb
 	all *bool
 }
 
 func newUnblotCmd() *unblotCmd {
 	cmd := &unblotCmd{
-		subCmd: subCmd{name: "unblot", flags: flag.NewFlagSet("unblot", flag.ExitOnError)}}
+		verb: verb{name: "unblot", flags: flag.NewFlagSet("unblot", flag.ExitOnError)}}
 	cmd.all = cmd.flags.Bool("all", false, "output all matches")
 	return cmd
 }

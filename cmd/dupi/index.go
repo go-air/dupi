@@ -27,7 +27,7 @@ import (
 )
 
 type indexCmd struct {
-	subCmd
+	verb
 	shards  *int
 	seqlen  *int
 	add     *bool
@@ -38,7 +38,7 @@ type indexCmd struct {
 
 func newIndexCmd() *indexCmd {
 	var index = &indexCmd{
-		subCmd: subCmd{
+		verb: verb{
 			name:  "index",
 			flags: flag.NewFlagSet("index", flag.ExitOnError)}}
 	index.seqlen = index.flags.Int("t", 10, "similarity based seq len")

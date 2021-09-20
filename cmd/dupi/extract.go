@@ -27,14 +27,14 @@ import (
 )
 
 type extractCmd struct {
-	subCmd
+	verb
 	index *dupi.Index
 	json  *bool
 	sigma *float64
 }
 
 func newExtractCmd() *extractCmd {
-	var extract = &extractCmd{subCmd: subCmd{
+	var extract = &extractCmd{verb: verb{
 		name:  "extract",
 		usage: "extract [args]",
 		flags: flag.NewFlagSet("extract", flag.ExitOnError)}}

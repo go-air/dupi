@@ -27,12 +27,12 @@ import (
 )
 
 type likeCmd struct {
-	subCmd
+	verb
 }
 
 func newLikeCmd() *likeCmd {
-	sc := &subCmd{flags: flag.NewFlagSet("like", flag.ExitOnError)}
-	lc := &likeCmd{subCmd: *sc}
+	sc := &verb{flags: flag.NewFlagSet("like", flag.ExitOnError)}
+	lc := &likeCmd{verb: *sc}
 	return lc
 }
 
