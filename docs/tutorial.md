@@ -3,7 +3,7 @@
 ## Install
 
 ```
-go install github.com/go-air/dupi@latest
+go install github.com/go-air/dupi/...@latest
 ```
 
 (If you would like binary distributions, please let us know on the 
