@@ -16,6 +16,7 @@ package dupi
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"math"
 
@@ -68,7 +69,7 @@ func (q *Query) Get(blot *Blot) error {
 			return err
 		}
 		if err = q.index.docid2Doc(docid, blot.Next(lim)); err != nil {
-			return err
+			return fmt.Errorf("internal error docid2Doc: %w\n", err)
 		}
 	}
 }
