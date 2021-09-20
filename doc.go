@@ -46,13 +46,13 @@ func (doc *Doc) Load() error {
 	if err != nil {
 		return err
 	}
+	defer f.Close()
 
 	if doc.Start == 0 && doc.End == 0 {
 		doc.Dat, err = ioutil.ReadAll(f)
 		if err != nil {
 			return fmt.Errorf("readall: %w", err)
 		}
-		f.Close()
 		doc.End = uint32(len(doc.Dat))
 	} else {
 		_, err = f.Seek(int64(doc.Start), io.SeekStart)
@@ -64,7 +64,6 @@ func (doc *Doc) Load() error {
 		if err != nil {
 			return fmt.Errorf("readat %s len=%d at=%d: %w\n", doc.Path, len(doc.Dat), doc.Start, err)
 		}
-		f.Close()
 	}
 	return nil
 }
