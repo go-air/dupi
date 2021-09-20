@@ -28,9 +28,10 @@ import (
 
 type extractCmd struct {
 	verb
-	index *dupi.Index
-	json  *bool
-	sigma *float64
+	index    *dupi.Index
+	json     *bool
+	sigma    *float64
+	blotonly *bool
 }
 
 func newExtractCmd() *extractCmd {
@@ -41,6 +42,7 @@ func newExtractCmd() *extractCmd {
 
 	extract.json = extract.flags.Bool("json", false, "output json")
 	extract.sigma = extract.flags.Float64("sigma", 2.0, "explore blots within σ of average (higher=most probable dups, lower=more volume)")
+	extract.blotonly = extract.flags.Bool("b", false, "output blots only")
 	return extract
 }
 
@@ -79,6 +81,7 @@ func (x *extractCmd) Run(args []string) error {
 			return nil
 		}
 		if *x.json {
+
 			shp2 := shape
 			j := 0
 			for i := range shp2 {
@@ -98,6 +101,10 @@ func (x *extractCmd) Run(args []string) error {
 		} else {
 			for _, blot := range shape {
 				if len(blot.Docs) <= 1 {
+					continue
+				}
+				if *x.blotonly {
+					fmt.Printf("%x\n", blot.Blot)
 					continue
 				}
 				fmt.Printf("%x", blot.Blot)
