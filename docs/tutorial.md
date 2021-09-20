@@ -62,6 +62,7 @@ verbs are:
         blot                         blot [files]
         unblot                      unblot <blot>
         inspect           inspect the root index.
+	like                                file.
 
 global options:
         -r                default=""               index root
@@ -110,13 +111,19 @@ reconstructs the corresponding text and instances.  This is still
 rudimentary, but here are some examples.
 
 ```
-dupi extract | awk '{print $1}' | xargs dupi unblot
+dupi extract -b | xargs dupi unblot
 ```
 
 Or 
 
 ```
 dupi blot file | xargs dupi unblot
+```
+
+Much nicer, however is the 'like' verb
+
+```
+dupi like file
 ```
 
 ## Conclusion
