@@ -26,7 +26,8 @@ import (
 
 type inspectCmd struct {
 	subCmd
-	json *bool
+	json  *bool
+	files *bool
 }
 
 func newInspectCmd() *inspectCmd {
@@ -35,7 +36,8 @@ func newInspectCmd() *inspectCmd {
 		flags: flag.NewFlagSet("inspect", flag.ExitOnError)}
 	res := &inspectCmd{
 		subCmd: *sub,
-		json:   sub.flags.Bool("json", false, "output json.")}
+		json:   sub.flags.Bool("json", false, "output json."),
+		files:  sub.flags.Bool("files", false, "output file info.")}
 	return res
 }
 

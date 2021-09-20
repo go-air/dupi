@@ -62,7 +62,7 @@ func (doc *Doc) Load() error {
 		doc.Dat = make([]byte, doc.End-doc.Start)
 		_, err = f.ReadAt(doc.Dat, int64(doc.Start))
 		if err != nil {
-			return fmt.Errorf("readat len=%d at=%d: %w\n", len(doc.Dat), doc.Start, err)
+			return fmt.Errorf("readat %s len=%d at=%d: %w\n", doc.Path, len(doc.Dat), doc.Start, err)
 		}
 		f.Close()
 	}

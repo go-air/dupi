@@ -106,10 +106,6 @@ func (x *indexCmd) mkWalkFn(perr *error) func(path string, entry fs.DirEntry, er
 			return nil
 		}
 
-		if *x.verbose {
-			log.Printf("doPath %s\n", path)
-		}
-
 		f, e := os.Open(path)
 		if e != nil {
 			return e
@@ -121,6 +117,9 @@ func (x *indexCmd) mkWalkFn(perr *error) func(path string, entry fs.DirEntry, er
 			return err
 		}
 		doc := &dupi.Doc{Path: path, Dat: dat, End: uint32(len(dat))}
+		if *x.verbose {
+			log.Printf("indexing %s %d:%d\n", path, 0, doc.End)
+		}
 		return x.indexer.Add(doc)
 	}
 }

@@ -27,3 +27,7 @@ Find and query for repeated chunks of text.
 
 [Design Document](docs/design.md)
 
+## Library Reference
+
+
+

@@ -15,6 +15,7 @@
 package dupi
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"math"
@@ -186,6 +187,47 @@ func (x *Index) JoinBlot(shard uint32, sblot uint16) uint32 {
 	blot := nsh * uint32(sblot)
 	blot += shard
 	return blot
+}
+
+func (x *Index) FindBlots(m map[uint32][]byte, doc *Doc) (map[uint32][]byte, error) {
+	if doc.Dat == nil {
+		err := doc.Load()
+		if err != nil {
+			return nil, err
+		}
+	}
+	toks := x.TokenFunc()(nil, doc.Dat, doc.Start)
+	j := 0
+	for _, tok := range toks {
+		if tok.Tag != token.Word {
+			continue
+		}
+		toks[j] = tok
+		j++
+	}
+	blotter := x.Blotter()
+	seqLen := x.SeqLen()
+	nShard := uint32(x.NumShards())
+	res := make(map[uint32][]byte)
+	for i, tok := range toks[:j] {
+		blot := blotter.Blot(tok.Lit)
+		if i < seqLen {
+			continue
+		}
+		blot %= nShard * (1 << 16)
+		if m[blot] == nil {
+			continue
+		}
+		start := toks[i-seqLen].Pos
+		end := tok.Pos + uint32(len(tok.Lit))
+		txt := doc.Dat[start:end]
+		if bytes.Equal(m[blot], txt) {
+			res[blot] = txt
+		} else {
+			//fmt.Printf("not equal: %s %s\n", string(m[blot]), string(txt))
+		}
+	}
+	return res, nil
 }
 
 func (x *Index) FindBlot(theBlot uint32, doc *Doc) (start, end uint32, err error) {

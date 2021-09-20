@@ -167,7 +167,6 @@ func (x *Indexer) Serve() {
 		for _, p := range ps {
 			docid, hash := p.Docid(), p.Blot()
 			hash &= 0xffff
-			fmt.Printf("adding post (%d,%x)\n", docid, hash)
 			err := x.ind[hash].AddPost(docid, x.postFile)
 			if err != nil {
 				log.Printf("couldn't add post: %s", err)
