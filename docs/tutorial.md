@@ -81,6 +81,9 @@ Example:
 dupi index .
 ```
 
+This will create an index on all files under the current directory
+in $HOME/.dupi
+
 ## Extracting Duplicates
 
 Dupi extracts sets of documents which share a blot with the 'extract' verb.
@@ -96,7 +99,7 @@ Some options may be of interest
 
 ```
 -b output only blots, one per line
--json output json
+-json output json (incompatible with -b)
 -sigma float output only those blots with mean + sigma documents
 By default, sigma is 3.0, it represents the standard deviation of
 the number of documents associated with a blot.  A higher value
