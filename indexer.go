@@ -84,7 +84,7 @@ func IndexerFromConfig(cfg *Config) (*Indexer, error) {
 }
 
 func OpenIndexer(root string) (*Indexer, error) {
-	cfg, err := ReadConfig(root)
+	cfg, err := ReadConfigFromRoot(root)
 	if err != nil {
 		return nil, err
 	}

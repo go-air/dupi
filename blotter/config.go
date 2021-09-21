@@ -26,8 +26,11 @@ func DefaultConfig() *Config {
 }
 
 func FromConfig(c *Config) (T, error) {
+	if c.Interleave < 1 {
+		return nil, fmt.Errorf("invalid config: interleave=%d", c.Interleave)
+	}
 	if c.Interleave == 1 {
 		return NewCirc(c.SeqLen), nil
 	}
-	return nil, fmt.Errorf("unsupported config: interleave=%d", c.Interleave)
+	return NewInterleaved(c.SeqLen, c.Interleave), nil
 }

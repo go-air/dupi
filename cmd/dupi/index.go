@@ -33,6 +33,7 @@ type indexCmd struct {
 	add     *bool
 	verbose *bool
 	nshat   *int
+	cfgPath *string
 	indexer *dupi.Indexer
 }
 
@@ -46,6 +47,7 @@ func newIndexCmd() *indexCmd {
 	index.verbose = index.flags.Bool("v", false, "verbose")
 	index.nshat = index.flags.Int("s", 4, "num shatterers")
 	index.shards = index.flags.Int("n", 4, "num shards")
+	index.cfgPath = index.flags.String("c", "", "config file (overrides all other flags)")
 	return index
 }
 
@@ -57,10 +59,21 @@ func (x *indexCmd) getIndexer() (*dupi.Indexer, error) {
 	if *x.add {
 		return dupi.OpenIndexer(getIndexRoot())
 	}
-	cfg, err := dupi.NewConfig(getIndexRoot(), *x.shards, *x.seqlen)
-	cfg.NumShatters = *x.nshat
-	if err != nil {
-		return nil, err
+	var (
+		cfg *dupi.Config
+		err error
+	)
+	if *x.cfgPath != "" {
+		cfg, err = dupi.ReadConfig(*x.cfgPath)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		cfg, err = dupi.NewConfig(getIndexRoot(), *x.shards, *x.seqlen)
+		if err != nil {
+			return nil, err
+		}
+		cfg.NumShatters = *x.nshat
 	}
 	return dupi.IndexerFromConfig(cfg)
 }

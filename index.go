@@ -47,7 +47,7 @@ func OpenIndex(root string) (*Index, error) {
 	if err := res.lock.LockShared(); err != nil {
 		return nil, err
 	}
-	cfg, err = ReadConfig(root)
+	cfg, err = ReadConfigFromRoot(root)
 	if err != nil {
 		return nil, err
 	}

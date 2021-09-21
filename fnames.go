@@ -31,6 +31,7 @@ type fname struct {
 	children map[string]uint32
 }
 
+// a compact, persistant set of paths
 type fnames struct {
 	d []fname
 }

@@ -28,7 +28,7 @@ import (
 type Config struct {
 	IndexRoot   string
 	SeqLen      int
-	NumShards  int
+	NumShards   int
 	NumShatters int
 
 	// How frequently buckets write document
@@ -54,6 +54,10 @@ func DefaultConfig(root string) (*Config, error) {
 	cfg.SeqLen = 10
 	cfg.TokenConfig = *token.DefaultConfig()
 	cfg.BlotConfig = *blotter.DefaultConfig()
+	err = cfg.check()
+	if err != nil {
+		return nil, err
+	}
 	return cfg, nil
 }
 
@@ -64,7 +68,18 @@ func NewConfig(root string, nbuckets, seqLen int) (*Config, error) {
 	}
 	cfg.NumShards = nbuckets
 	cfg.SeqLen = seqLen
+	err = cfg.check()
+	if err != nil {
+		return nil, err
+	}
 	return cfg, nil
+}
+
+func (cfg *Config) check() error {
+	if cfg.SeqLen != cfg.BlotConfig.Interleave*cfg.BlotConfig.SeqLen {
+		return fmt.Errorf("inconsistent sequence config")
+	}
+	return nil
 }
 
 func (cfg *Config) Path() string {
@@ -91,12 +106,16 @@ func (cfg *Config) PostPath(i int) string {
 	return filepath.Join(cfg.IndexRoot, fmt.Sprintf("b%d.pos", i))
 }
 
-func ReadConfig(root string) (*Config, error) {
+func ReadConfigFromRoot(root string) (*Config, error) {
 	cfg, err := DefaultConfig(root)
 	if err != nil {
 		return nil, err
 	}
-	f, err := os.OpenFile(cfg.Path(), os.O_RDONLY, 0644)
+	return ReadConfig(cfg.Path())
+}
+
+func ReadConfig(path string) (*Config, error) {
+	f, err := os.OpenFile(path, os.O_RDONLY, 0644)
 	if err != nil {
 		return nil, err
 	}
@@ -106,11 +125,16 @@ func ReadConfig(root string) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = json.Unmarshal(d, cfg)
+	var cfg Config
+	err = json.Unmarshal(d, &cfg)
 	if err != nil {
 		return nil, err
 	}
-	return cfg, nil
+	err = cfg.check()
+	if err != nil {
+		return nil, err
+	}
+	return &cfg, nil
 }
 
 func (cfg *Config) Write() error {
