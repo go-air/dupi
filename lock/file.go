@@ -29,6 +29,9 @@ func New(path string) (*File, error) {
 	return &File{path, f}, nil
 }
 
+// Close unlocks and then closes the file, returning any
+// error.  The file handle is closed whether or not
+// unlocking fails with an error.
 func (f *File) Close() error {
 	erru := f.Unlock()
 	errc := f.handle.Close()

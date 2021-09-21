@@ -69,6 +69,9 @@ func (x *extractCmd) Run(args []string) error {
 	for {
 		n, err := query.Next(shape)
 		if err == io.EOF {
+			if n != 0 {
+				panic(fmt.Sprintf("next gave EOF but n=%d\n", n))
+			}
 			return nil
 		}
 		if err != nil {

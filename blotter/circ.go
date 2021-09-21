@@ -15,6 +15,7 @@
 package blotter
 
 import (
+	"bytes"
 	"hash"
 	"hash/fnv"
 )
@@ -41,7 +42,7 @@ func (c *Circ) Interleaving() int {
 func (c *Circ) Blot(word []byte) uint32 {
 	fn := c.fn
 	fn.Reset()
-	fn.Write(word)
+	fn.Write(bytes.ToLower(word))
 	h := fn.Sum32()
 	c.hash ^= c.hashes[c.i]
 	c.hashes[c.i] = h

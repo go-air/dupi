@@ -27,8 +27,21 @@ type qstate struct {
 	shardStates []*shard.ReadState
 	i           uint32
 	n           uint32
-	blot        uint32
 	nilCount    uint32
+}
+
+func (s *qstate) setMax() {
+	var maxTotal, p uint32
+	for i, ss := range s.shardStates {
+		if ss == nil {
+			continue
+		}
+		if ss.Total > maxTotal {
+			maxTotal = ss.Total
+			p = uint32(i)
+		}
+	}
+	s.i = p
 }
 
 var ErrInvalidQueryState = errors.New("query state invalid")
@@ -144,10 +157,12 @@ func (q *Query) advance(src *shard.ReadState, pos uint32) *shard.ReadState {
 	if src.At == math.MaxUint16 {
 
 	} else if src.Total <= 1 {
+		//fmt.Printf("read state at %d has %d, exhausted\n", pos, src.Total)
 
 	} else {
 		rs = q.index.shards[pos].ReadStateAt(src.At + 1)
 	}
 	q.state.shardStates[pos] = rs
-	return rs
+	q.state.setMax()
+	return q.state.shardStates[q.state.i]
 }

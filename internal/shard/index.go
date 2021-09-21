@@ -73,7 +73,7 @@ func (x *Index) ReadStateForBlotAt(blot, at uint16) *ReadState {
 	res.Shard = x.id
 	res.Blot = blot
 	res.At = at
-	res.Total = x.counts[at]
+	res.Total = x.counts[blot]
 	res.rdr = x.postFile
 	return res
 }

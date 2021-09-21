@@ -283,9 +283,7 @@ func (x *Index) qstate(s QueryStrategy) *qstate {
 		shard := &x.shards[i]
 		qstate.shardStates[i] = shard.ReadStateAt(0)
 	}
-	qstate.blot = uint32(qstate.shardStates[qstate.i].Blot)
-	qstate.blot *= uint32(qstate.n)
-	qstate.blot += qstate.i
+	qstate.setMax()
 	return qstate
 }
 

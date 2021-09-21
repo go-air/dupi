@@ -29,8 +29,5 @@ type ReadState struct {
 func (s *ReadState) Next() (uint32, error) {
 	var docid uint32
 	docid, s.Error = s.Posts.next(s.rdr)
-	if s.Error != nil {
-		s.Total++
-	}
 	return docid, s.Error
 }

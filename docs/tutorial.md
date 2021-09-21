@@ -83,8 +83,26 @@ dupi index .
 
 ## Extracting Duplicates
 
+Dupi extracts sets of documents which share a blot with the 'extract' verb.
+
 ```
 dupi extract
+```
+
+These results are fast but noisy due to blot collisions.  Extraction
+skips any blots which are associated with one or fewer documents.
+
+Some options may be of interest
+
+```
+-b output only blots, one per line
+-json output json
+-sigma float output only those blots with mean + sigma documents
+By default, sigma is 3.0, it represents the standard deviation of
+the number of documents associated with a blot.  A higher value
+outputs less information which is more likely to be associated with
+actual duplicate text.  A lower value is more thorough (has higher
+recall) but less precision.
 ```
 
 ## Appending to the index
@@ -114,13 +132,10 @@ rudimentary, but here are some examples.
 dupi extract -b | xargs dupi unblot
 ```
 
-Or 
+### Like
 
-```
-dupi blot file | xargs dupi unblot
-```
-
-Much nicer, however is the 'like' verb
+Dupi provides a 'like' verb which permits finding documents that
+are similar to a given one which is not in the index.
 
 ```
 dupi like file
@@ -133,6 +148,8 @@ of development, some things may be added or changed, we will try to
 keep this document up to date.   Feel free to help improve our
 documentation using [issues](https://github.com/go-air/dupi/issues) or 
 [pull requests](https://github.com/go-air/dupi/pulls).
+
+
 
 
 

@@ -70,7 +70,6 @@ func (s *fnames) abs(v uint32) string {
 func (s *fnames) addPath(path string) (uint32, error) {
 	abs, err := filepath.Abs(path)
 	if err != nil {
-		fmt.Printf("abs\n")
 		return 0, err
 	}
 	var (

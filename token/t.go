@@ -18,6 +18,7 @@ package token
 import (
 	"fmt"
 	"unicode"
+	"unicode/utf8"
 )
 
 // Tag represents a value in an enumeration of
@@ -56,6 +57,9 @@ func (t *T) String() string {
 
 // Tokenize is a tokenizer function.
 func Tokenize(dst []T, d []byte, offset uint32) []T {
+	if !utf8.Valid(d) {
+		return dst
+	}
 	inWord := false
 	var i, j int
 	var r rune
