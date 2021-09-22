@@ -17,6 +17,8 @@ package token
 
 import (
 	"fmt"
+	"go/scanner"
+	"go/token"
 	"unicode"
 	"unicode/utf8"
 )
@@ -53,6 +55,47 @@ type T struct {
 
 func (t *T) String() string {
 	return fmt.Sprintf("<token %s: '%s' @%d>", t.Tag, t.Lit, t.Pos)
+}
+
+func GoTokenize(dst []T, d []byte, offset uint32) []T {
+	if !utf8.Valid(d) {
+		return dst
+	}
+	numIllegal := 0
+	fs := token.NewFileSet()
+	gofile := fs.AddFile("", int(offset)+1, len(d))
+	var scnr scanner.Scanner
+	scnr.Init(gofile, d, nil, 0) //scanner.ScanComments)
+	for {
+		pos, tok, lit := scnr.Scan()
+		switch tok {
+		case token.EOF:
+			return dst
+		case token.ILLEGAL:
+			numIllegal++
+			if numIllegal > 10 {
+				return nil
+			}
+			/*
+				case token.IDENT:
+					switch lit {
+					case "append", "true", "false", "make", "new", "copy", "delete":
+						fallthrough
+					default:
+						fallthrough
+						//dst = append(dst, T{
+						//	Tag: Word,
+						//	Pos: uint32(pos - 1),
+						//	Lit: []byte("_")})
+					}
+			*/
+		default:
+			dst = append(dst, T{
+				Tag: Word,
+				Pos: uint32(pos - 1),
+				Lit: []byte(lit)})
+		}
+	}
 }
 
 // Tokenize is a tokenizer function.

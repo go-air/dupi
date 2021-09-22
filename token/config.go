@@ -38,6 +38,8 @@ func FromConfig(cfg *Config) (TokenizerFunc, error) {
 	switch cfg.Name {
 	case "words.simple":
 		return Tokenize, nil
+	case "go.tokens":
+		return GoTokenize, nil
 	default:
 		return nil, fmt.Errorf("unrecognized token config: '%#v'", cfg)
 	}
