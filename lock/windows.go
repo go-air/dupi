@@ -17,20 +17,25 @@
 
 package lock
 
+import (
+	"golang.org/x/sys/windows"
+)
+
 const (
-	reserved = 0
-	allBytes = ^uint32(0)
+	reserved                 = 0
+	allBytes                 = ^uint32(0)
+	_LOCKFILE_EXCLUSIVE_LOCK = 2
 )
 
 func (f *File) Lock() error {
-	ol := new(syscall.Overlapped)
-	h := syscall.Handle(f.handle.Fd())
-	return windows.LockFileEx(h, reserved, allBytes, allBytes, ol)
+	ol := new(windows.Overlapped)
+	h := windows.Handle(f.handle.Fd())
+	return windows.LockFileEx(h, _LOCKFILE_EXCLUSIVE_LOCK, reserved, allBytes, allBytes, ol)
 }
 
 func (f *File) Unlock() error {
-	ol := new(syscall.Overlapped)
-	h := syscall.Handle(f.handle.Fd())
+	ol := new(windows.Overlapped)
+	h := windows.Handle(f.handle.Fd())
 	return windows.UnlockFileEx(h, reserved, allBytes, allBytes, ol)
 }
 
